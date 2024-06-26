@@ -1,39 +1,34 @@
-use borsh_derive::{BorshSerialize, BorshDeserialize};
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
-    entrypoint,
-    entrypoint::ProgramResult,
-    msg,
     pubkey::Pubkey,
     account_info::{next_account_info, AccountInfo},
-    program_error::ProgramError,
+    msg,
+    entrypoint,
+    entrypoint::ProgramResult,
+    program_error::ProgramError
 };
+
 
 // Define the type of state stored in accounts
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct GreetingAccount {
-    /// number of greetings
     pub counter: u32,
 }
 
 // Declare and export the program's entrypoint
-entrypoint!(process_instruction);
+entrypoint!(proccess_instruction);
 
-// Program entrypoint's implementation
-pub fn process_instruction(
-    program_id: &Pubkey, // Public key of the account the hello world program was loaded into
-    accounts: &[AccountInfo], // The account to say hello to
-    _instruction_data: &[u8] // Ignored, all helloworld instructions are hellos
+pub fn proccess_instruction(
+    program_id: &Pubkey, // Public key of the account the program is loaded into
+    accounts: &[AccountInfo], // Accounts that can be accessed by the program
+    instruction_data: &[u8] // Raw instruction data passed to the program
 ) -> ProgramResult {
-    msg!("Hello World Rust program entrypoint");
+		let accounts_iter = &mut accounts.iter();
 
-    // Iterating accounts is safer than indexing
-    let accounts_iter = &mut accounts.iter();
-
-    // Get the account to say hello to
+    // Get the PDA account
     let account = next_account_info(accounts_iter)?;
     
-    // The account must be owned by the program in order to modify its data
+    // The PDA account must be owned by the program in order to modify its data
     if account.owner != program_id {
         msg!("Greeted account does not have the correct program id");
         return Err(ProgramError::IncorrectProgramId);
